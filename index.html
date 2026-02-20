@@ -3,111 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Awere SS | Nexus v2026</title>
+    <title>Awere SS | Titanium Nexus</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-900 overflow-hidden">
+<body class="bg-slate-900 text-white font-sans overflow-hidden">
 
-    <div id="login-view" class="flex items-center justify-center min-h-screen bg-slate-900 px-4">
+    <div id="login-view" class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white p-10 rounded-[3rem] shadow-2xl w-full max-w-sm border-b-[12px] border-blue-600">
-            <h1 class="text-3xl font-black text-center mb-1">AWERE SS</h1>
-            <p class="text-slate-400 text-[10px] font-black text-center mb-8 uppercase tracking-[0.3em]">Identity Gateway</p>
-            <input type="text" id="u-id" placeholder="User ID / LIN" class="w-full p-4 bg-slate-100 rounded-2xl mb-3 outline-none focus:ring-4 focus:ring-blue-600/20 transition-all border-none">
-            <input type="password" id="u-pw" placeholder="Security PIN" class="w-full p-4 bg-slate-100 rounded-2xl mb-8 outline-none focus:ring-4 focus:ring-blue-600/20 transition-all border-none">
+            <h1 class="text-3xl font-black text-slate-900 text-center mb-1 uppercase italic">Awere ERP</h1>
+            <p class="text-slate-400 text-[10px] font-black text-center mb-8 uppercase tracking-[0.3em]">System Brain v2.6</p>
+            <input type="text" id="u-id" placeholder="User ID / LIN" class="w-full p-4 bg-slate-100 text-slate-900 rounded-2xl mb-3 outline-none border-none focus:ring-4 focus:ring-blue-600/20">
+            <input type="password" id="u-pw" placeholder="Security PIN" class="w-full p-4 bg-slate-100 text-slate-900 rounded-2xl mb-8 outline-none border-none focus:ring-4 focus:ring-blue-600/20">
             <button onclick="handleLogin()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black shadow-lg hover:bg-blue-700 active:scale-95 transition-all">UNFOLD PORTAL</button>
         </div>
     </div>
 
-    <div id="portal-view" class="hidden flex h-screen">
+    <div id="portal-view" class="hidden flex h-screen text-slate-900">
         <aside class="w-72 bg-slate-950 text-slate-400 p-8 flex flex-col shadow-2xl">
             <div class="mb-12">
-                <h2 class="text-white font-black text-2xl tracking-tighter italic">NEXUS</h2>
-                <div id="role-tag" class="mt-2 inline-block px-2 py-1 bg-blue-600/20 text-blue-400 text-[10px] font-black rounded border border-blue-600/30 uppercase">Role</div>
+                <h2 class="text-white font-black text-2xl italic tracking-tighter">TITANIUM</h2>
+                <div id="role-tag" class="mt-2 inline-block px-2 py-1 bg-blue-600/20 text-blue-400 text-[10px] font-black rounded border border-blue-600/30 uppercase">Status</div>
             </div>
             <nav id="sidebar-nav" class="flex-1 space-y-2 font-bold"></nav>
             <div class="pt-6 border-t border-slate-800">
-                <p id="user-name" class="text-sm text-white font-black truncate"></p>
+                <p id="user-display" class="text-sm text-white font-black truncate"></p>
                 <button onclick="location.reload()" class="text-xs text-slate-600 hover:text-red-500 mt-2 font-bold transition">TERMINATE SESSION</button>
             </div>
         </aside>
 
-        <main class="flex-1 overflow-y-auto p-12">
+        <main class="flex-1 overflow-y-auto p-12 bg-slate-50">
             <h2 id="portal-title" class="text-5xl font-black text-slate-900 mb-10 tracking-tight italic">Portal</h2>
-            <div id="portal-content" class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-200">
+            <div id="portal-content" class="bg-white p-10 rounded-[3rem] shadow-sm border border-slate-200 min-h-[500px]">
                 </div>
         </main>
     </div>
 
     <script>
-        // --- BRAIN CONFIGURATION ---
-        const firebaseConfig = { projectId: "awere-77d02", /* Add keys from Firebase */ };
+        // --- YOUR FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDUoYRjlHxBg3-ddFtsk2tGXAn9X46moHc",
+            authDomain: "awere-erp.firebaseapp.com",
+            projectId: "awere-erp",
+            storageBucket: "awere-erp.firebasestorage.app",
+            messagingSenderId: "139972783523",
+            appId: "1:139972783523:web:f9591d033305bfabbe7e16"
+        };
+
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        let user = null;
+        let me = null;
 
+        // --- AUTHENTICATION ENGINE ---
         async function handleLogin() {
             const id = document.getElementById('u-id').value.toLowerCase();
             const pw = document.getElementById('u-pw').value;
             
-            // SECURITY CHECK: 1995 is the Master Dev Bypass
             try {
                 const doc = await db.collection("users").doc(id).get();
                 if (doc.exists && doc.data().password === pw) {
-                    user = { id, ...doc.data() };
+                    me = { id, ...doc.data() };
                     launchPortal();
-                } else { alert("❌ ACCESS DENIED: Identity Conflict."); }
-            } catch (e) { alert("📡 Connection Refused."); }
+                } else { 
+                    alert("❌ Unauthorized Entry: Access Denied."); 
+                }
+            } catch (e) { 
+                alert("📡 Database Connection Failure. Check Firestore Rules."); 
+            }
         }
 
         function launchPortal() {
             document.getElementById('login-view').classList.add('hidden');
             document.getElementById('portal-view').classList.remove('hidden');
-            document.getElementById('user-name').innerText = user.name.toUpperCase();
-            document.getElementById('role-tag').innerText = user.role;
-            routeUser();
-        }
-
-        function routeUser() {
-            const nav = document.getElementById('sidebar-nav');
-            const r = user.role;
-            let menu = `<button onclick="showDashboard()" class="w-full text-left p-4 rounded-2xl hover:bg-slate-900 hover:text-white transition">📊 Status</button>`;
-
-            if (['dev', 'admin', 'deputy'].includes(r)) {
-                menu += `<button onclick="panelAdmin()" class="w-full text-left p-4 rounded-2xl hover:bg-slate-900 hover:text-white transition">🛡️ Master Control</button>`;
-            }
-            if (['dev', 'admin', 'deputy', 'dos', 'teacher'].includes(r)) {
-                menu += `<button onclick="panelTeacher()" class="w-full text-left p-4 rounded-2xl hover:bg-slate-900 hover:text-white transition text-blue-500">📖 Academic Panel</button>`;
-            }
-            if (['dev', 'admin', 'bursar'].includes(r)) {
-                menu += `<button onclick="panelBursar()" class="w-full text-left p-4 rounded-2xl hover:bg-slate-900 hover:text-white transition">💰 Bursary Portal</button>`;
-            }
-            menu += `<button onclick="panelLearner()" class="w-full text-left p-4 rounded-2xl hover:bg-slate-900 hover:text-white transition">🎓 Learner Portal</button>`;
-            
-            nav.innerHTML = menu;
+            document.getElementById('user-display').innerText = me.name.toUpperCase();
+            document.getElementById('role-tag').innerText = me.role;
+            buildNav();
             showDashboard();
         }
 
-        // --- PORTAL MODULES ---
+        // --- ROLE ROUTER ---
+        function buildNav() {
+            const nav = document.getElementById('sidebar-nav');
+            const r = me.role;
+            let h = `<button onclick="showDashboard()" class="w-full text-left p-4 rounded-2xl hover:bg-slate-900 hover:text-white transition font-bold">🏠 Dashboard</button>`;
+            
+            if (['dev', 'admin', 'deputy'].includes(r)) {
+                h += `<button onclick="uiManager()" class="w-full text-left p-4 rounded-2xl hover:bg-slate-900 hover:text-white transition font-bold">🛡️ Master Control</button>`;
+            }
+            if (['dev', 'admin', 'teacher'].includes(r)) {
+                h += `<button onclick="uiAcademics()" class="w-full text-left p-4 rounded-2xl hover:bg-slate-900 hover:text-white transition font-bold text-blue-500">📝 Mark Entry</button>`;
+            }
+            h += `<button onclick="uiLearner()" class="w-full text-left p-4 rounded-2xl hover:bg-slate-900 hover:text-white transition font-bold">🎓 Student Portal</button>`;
+            
+            nav.innerHTML = h;
+        }
 
-        function panelAdmin() {
-            document.getElementById('portal-title').innerText = "Master Control Panel";
+        // --- MODULE: MANAGEMENT (DEV/ADMIN) ---
+        function uiManager() {
+            document.getElementById('portal-title').innerText = "Master Control";
             document.getElementById('portal-content').innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                    <div class="space-y-4">
-                        <h4 class="font-black text-blue-600 text-xs uppercase italic">Identity Generator</h4>
-                        <input id="p-id" placeholder="LIN / Staff ID" class="w-full p-4 bg-slate-50 rounded-2xl border">
-                        <input id="p-name" placeholder="Official Name" class="w-full p-4 bg-slate-50 rounded-2xl border">
-                        <select id="p-role" class="w-full p-4 bg-slate-50 rounded-2xl border">
+                <div class="max-w-xl space-y-6">
+                    <h3 class="text-2xl font-black text-blue-900">Identity Generator</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input id="p-id" placeholder="LIN / User ID" class="p-4 bg-slate-50 border rounded-2xl">
+                        <input id="p-name" placeholder="Official Name" class="p-4 bg-slate-50 border rounded-2xl">
+                        <select id="p-role" class="p-4 bg-slate-50 border rounded-2xl">
                             <option value="learner">Learner</option><option value="teacher">Teacher</option>
-                            <option value="dos">D.O.S</option><option value="bursar">Bursar</option>
-                            <option value="deputy">Deputy HT</option><option value="admin">Headteacher</option>
-                            <option value="dev">System Brain (Dev)</option>
+                            <option value="admin">Headteacher</option><option value="dev">Developer</option>
                         </select>
-                        <input id="p-pw" placeholder="Security PIN" class="w-full p-4 bg-slate-50 rounded-2xl border">
-                        <button onclick="saveUser()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg">SYNC TO CLOUD</button>
+                        <input id="p-pw" placeholder="Set PIN" class="p-4 bg-slate-50 border rounded-2xl">
                     </div>
+                    <button onclick="saveUser()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg">SYNC TO CLOUD</button>
                 </div>`;
         }
 
@@ -117,51 +125,60 @@
                 name: document.getElementById('p-name').value,
                 role: document.getElementById('p-role').value,
                 password: document.getElementById('p-pw').value,
-                creator: user.name
+                createdBy: me.name
             };
             await db.collection("users").doc(id).set(data);
             alert("✅ Identity Locked into Database.");
         }
 
-        function panelTeacher() {
-            document.getElementById('portal-title').innerText = "Academic Hub";
+        // --- MODULE: ACADEMICS (NCDC 80/20) ---
+        function uiAcademics() {
+            document.getElementById('portal-title').innerText = "Mark Hub";
             document.getElementById('portal-content').innerHTML = `
                 <div class="max-w-md space-y-4">
-                    <h4 class="font-black text-blue-600 text-xs uppercase italic">NCDC Result Sync</h4>
-                    <input id="m-id" placeholder="Student LIN" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-600">
-                    <select id="m-sub" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-600">
-                        <option>Mathematics</option><option>English</option><option>Physics</option><option>Biology</option>
-                    </select>
+                    <h3 class="text-2xl font-black text-blue-900 italic">Academic Sync</h3>
+                    <input id="m-id" placeholder="Student LIN" class="w-full p-4 border rounded-2xl bg-slate-50">
                     <div class="flex gap-4">
                         <input id="m-aoi" type="number" step="0.1" placeholder="AoI (3.0)" class="w-1/2 p-4 border rounded-2xl">
                         <input id="m-exam" type="number" placeholder="Exam (100)" class="w-1/2 p-4 border rounded-2xl">
                     </div>
-                    <button onclick="saveMark()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black shadow-xl active:scale-95 transition-all">RECORD PERFORMANCE</button>
+                    <button onclick="saveMark()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black">RECORD MARKS</button>
                 </div>`;
         }
 
         async function saveMark() {
             const sid = document.getElementById('m-id').value.toLowerCase();
-            const sub = document.getElementById('m-sub').value;
             const aoi = parseFloat(document.getElementById('m-aoi').value);
             const exam = parseFloat(document.getElementById('m-exam').value);
             
-            // 80/20 Grading Brain
+            // NCDC 80/20 Logic
             const finalScore = ((aoi/3)*20) + (exam * 0.8);
 
-            await db.collection("marks").doc(`${sid}_${sub}`).set({
-                student: sid, subject: sub, aoi, exam, finalScore,
-                teacher: user.name, ts: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            alert("🎯 Marks recorded for " + sid);
+            await db.collection("marks").doc(sid).set({
+                student: sid, aoi, exam, finalScore,
+                recordedBy: me.name,
+                date: new Date().toLocaleDateString()
+            }, {merge: true});
+            alert("🎯 Marks recorded. Final Score: " + finalScore.toFixed(1) + "%");
         }
 
         function showDashboard() {
             document.getElementById('portal-title').innerText = "Nexus Dashboard";
             document.getElementById('portal-content').innerHTML = `
-                <div class="bg-blue-700 p-8 rounded-[2rem] text-white">
-                    <h3 class="text-4xl font-black tracking-tighter">Welcome, ${user.name}</h3>
-                    <p class="mt-2 font-bold opacity-70">Role Authority: ${user.role.toUpperCase()}</p>
+                <div class="bg-blue-600 p-10 rounded-[2.5rem] text-white shadow-xl">
+                    <p class="text-xs font-black opacity-60 uppercase tracking-widest mb-2">Authenticated Identity</p>
+                    <h1 class="text-4xl font-black italic mb-4">${me.name}</h1>
+                    <div class="inline-block px-4 py-1 bg-white/20 rounded-lg font-bold">Access Level: ${me.role.toUpperCase()}</div>
+                </div>`;
+        }
+
+        function uiLearner() {
+            document.getElementById('portal-title').innerText = "Student Portal";
+            document.getElementById('portal-content').innerHTML = `
+                <div class="text-center py-20">
+                    <h3 class="text-3xl font-black mb-4 italic">Academic Report Engine</h3>
+                    <p class="text-slate-500 font-medium mb-8">Official transcripts are available after school clearance.</p>
+                    <button class="bg-blue-600 text-white px-10 py-4 rounded-full font-black shadow-lg">Download Report Card</button>
                 </div>`;
         }
     </script>
