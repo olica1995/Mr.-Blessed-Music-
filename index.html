@@ -3,86 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Awere SS | Integrated Management System</title>
+    <title>Awere SS | Academic Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
         @media print { .no-print { display: none; } .print-only { display: block !important; } }
         .print-only { display: none; }
-        .btn-action { transition: all 0.2s; border-radius: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-action:active { transform: scale(0.96); }
+        .card-shadow { box-shadow: 0 20px 50px -12px rgb(0 0 0 / 0.1); }
     </style>
 </head>
 <body>
 
-    <div id="login-view" class="flex items-center justify-center min-h-screen p-6 bg-slate-900 no-print">
-        <div class="bg-white p-10 rounded-[3rem] shadow-2xl w-full max-w-md border-t-8 border-blue-600">
-            <div class="text-center mb-8">
-                <h1 class="text-2xl font-black uppercase text-slate-800">Awere SS Portal</h1>
-                <p class="text-blue-600 text-[10px] font-bold tracking-widest uppercase">Academic Control Center</p>
-            </div>
+    <div id="login-view" class="flex items-center justify-center min-h-screen p-6 bg-slate-950 no-print">
+        <div class="bg-white p-12 rounded-[3rem] shadow-2xl w-full max-w-md border-b-8 border-blue-600">
+            <h1 class="text-3xl font-black text-center uppercase tracking-tighter mb-2">Awere SS</h1>
+            <p class="text-center text-blue-600 text-[10px] font-bold uppercase tracking-widest mb-8">Management Portal</p>
             <div class="space-y-4">
-                <input type="text" id="u-id" placeholder="ID Number / LIN" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none">
-                <input type="password" id="u-pw" placeholder="PIN (Default: 1234)" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none">
-                <button onclick="handleLogin()" class="w-full bg-blue-600 text-white py-4 btn-action shadow-lg hover:bg-blue-700">Login</button>
+                <input type="text" id="u-id" placeholder="LIN / Staff ID" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="password" id="u-pw" placeholder="PIN (Default: 1234)" class="w-full p-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="handleLogin()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-blue-700 transition">SIGN IN</button>
             </div>
         </div>
     </div>
 
     <div id="portal-view" class="hidden flex min-h-screen flex-col md:flex-row no-print">
         <aside class="w-full md:w-72 bg-slate-900 text-slate-400 p-8 flex flex-col shadow-2xl">
-            <div id="sidebar-photo" class="flex justify-center mb-6"></div>
-            <h2 class="text-white font-black text-xl mb-10 italic text-center">AWERE SS</h2>
-            <nav id="sidebar-nav" class="flex-1 space-y-1"></nav>
+            <h2 class="text-white font-black text-2xl mb-10 italic">AWERE SS</h2>
+            <nav id="sidebar-nav" class="flex-1 space-y-2"></nav>
             <div class="pt-6 border-t border-slate-800">
                 <p id="user-display" class="text-white font-bold truncate"></p>
-                <p id="role-display" class="text-[10px] text-blue-400 font-black uppercase mb-4"></p>
-                <button onclick="uiProfile()" class="text-xs block text-slate-300 mb-2 hover:text-white">Change Password</button>
-                <button onclick="location.reload()" class="text-xs text-red-500 font-bold uppercase hover:underline">Exit System</button>
+                <p id="role-display" class="text-[9px] text-blue-400 font-black uppercase mb-4"></p>
+                <button onclick="uiProfile()" class="text-xs block mb-2 hover:text-white underline">Change Security PIN</button>
+                <button onclick="location.reload()" class="text-xs text-red-500 font-bold uppercase">Logout</button>
             </div>
         </aside>
 
-        <main class="flex-1 p-6 md:p-12 overflow-y-auto">
-            <div class="flex justify-between items-center mb-8">
-                <h2 id="portal-title" class="text-3xl font-black italic uppercase tracking-tighter">Dashboard</h2>
-                <div id="global-indicator" class="bg-slate-100 px-4 py-2 rounded-full text-[10px] font-black border uppercase"></div>
+        <main class="flex-1 p-6 md:p-12 overflow-y-auto bg-white rounded-l-[3rem]">
+            <div class="flex justify-between items-start mb-10">
+                <h2 id="portal-title" class="text-4xl font-black italic uppercase tracking-tighter">Home</h2>
+                <div id="global-tag" class="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-[10px] font-black border border-blue-100 uppercase"></div>
             </div>
-            <div id="portal-content" class="bg-white p-8 rounded-[3rem] shadow-sm border min-h-[70vh]"></div>
+            <div id="portal-content"></div>
         </main>
     </div>
 
-    <div id="report-card-print" class="print-only bg-white p-10 text-black w-full max-w-5xl mx-auto border-4 border-black relative">
-        <div class="flex justify-between items-center border-b-4 border-blue-600 pb-4 mb-4">
-            <img src="https://via.placeholder.com/100?text=LOGO" class="w-20">
-            <div class="text-center">
-                <h1 class="text-2xl font-black uppercase">Awere Secondary School</h1>
-                <p class="text-[9px] font-bold italic">"Excellence in Service" | Gulu, Uganda</p>
-                <h2 id="r-type-display" class="mt-2 text-sm font-black bg-black text-white px-6 py-1 inline-block uppercase italic">Report</h2>
-            </div>
-            <div id="report-qr" class="w-20 h-20"></div>
+    <div id="report-card-print" class="print-only bg-white p-10 text-black w-full max-w-5xl mx-auto border-[4px] border-black">
         </div>
-        <div id="report-header-info" class="grid grid-cols-2 gap-4 text-[11px] font-bold uppercase mb-6 border p-4 rounded-xl"></div>
-        <table class="w-full border-2 border-black text-[11px] mb-6">
-            <thead class="bg-slate-100 uppercase">
-                <tr><th class="border border-black p-2 text-left">Subject</th><th class="border border-black p-2">AoI (20)</th><th class="border border-black p-2">Exam (80)</th><th class="border border-black p-2">Total</th><th class="border border-black p-2">Teacher</th></tr>
-            </thead>
-            <tbody id="r-table-body"></tbody>
-        </table>
-        <div class="grid grid-cols-2 gap-8 text-[11px] font-bold border-t pt-4">
-            <div><p class="underline uppercase">Summary:</p><p class="text-lg">AVERAGE: <span id="r-avg"></span></p></div>
-            <div class="relative"><p class="underline uppercase">Remarks:</p><p id="r-remark" class="italic"></p><img src="https://via.placeholder.com/100?text=STAMP" class="w-16 absolute right-0 bottom-0 opacity-40"></div>
-        </div>
-    </div>
 
     <script>
+        // DATA ARRAYS
         const CLASSES = ["S1", "S2", "S3", "S4", "S5", "S6"];
-        const SUBJECTS = ["Mathematics", "English", "Physics", "Chemistry", "Biology", "Geography", "History", "CRE", "Computer Studies", "Agriculture"];
-        
-        // YOUR FIREBASE CONFIG
+        const SUBJECTS = [
+            "English Language", "Literature in English", "Mathematics", "Biology", 
+            "Physics", "Chemistry", "History and Political Education", "Geography", 
+            "CRE", "ICT", "TD", "Agriculture", "Kiswahili", "Acholi", 
+            "Economics", "Entrepreneurship"
+        ];
+
+        // FIREBASE INITIALIZATION
         const firebaseConfig = {
             apiKey: "AIzaSyDUoYRjlHxBg3-ddFtsk2tGXAn9X46moHc",
             authDomain: "awere-erp.firebaseapp.com",
@@ -93,25 +75,32 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+
         let me = null;
-        let globalConfig = { term: "Term 1", year: "2026", mode: "AoI" };
+        let config = { term: "Term 1", year: "2026", mode: "AoI" };
 
-        // INITIALIZE
-        async function fetchConfig() {
-            const doc = await db.collection("settings").doc("global").get();
-            if(doc.exists) globalConfig = doc.data();
-            document.getElementById('global-indicator').innerText = `${globalConfig.year} | ${globalConfig.term} | ${globalConfig.mode}`;
+        async function init() {
+            const snap = await db.collection("settings").doc("global").get();
+            if(snap.exists) config = snap.data();
+            document.getElementById('global-tag').innerText = `${config.year} | ${config.term} | ${config.mode}`;
         }
-        fetchConfig();
+        init();
 
-        // AUTH
+        // AUTHENTICATION
         async function handleLogin() {
             const id = document.getElementById('u-id').value.trim().toLowerCase();
             const pw = document.getElementById('u-pw').value.trim();
-            if (id === "admin" && pw === "1995") { me = { name: "Olica", role: "dev", id: "admin" }; launch(); return; }
+            
+            if (id === "admin" && pw === "1995") { 
+                me = { name: "Olica", role: "dev", id: "admin" }; 
+                launch(); return; 
+            }
+
             const doc = await db.collection("users").doc(id).get();
-            if (doc.exists && doc.data().password == pw) { me = { ...doc.data(), id }; launch(); }
-            else alert("❌ Invalid Credentials");
+            if (doc.exists && doc.data().password == pw) {
+                me = { ...doc.data(), id };
+                launch();
+            } else { alert("Invalid Credentials"); }
         }
 
         function launch() {
@@ -126,41 +115,93 @@
         function buildNav() {
             const nav = document.getElementById('sidebar-nav');
             const r = me.role;
-            let h = `<button onclick="showDash()" class="w-full text-left p-3 rounded-xl hover:bg-slate-800 transition">🏠 Home</button>`;
+            let h = `<button onclick="showDash()" class="w-full text-left p-3 rounded-xl hover:bg-slate-800">🏠 Dashboard</button>`;
             
             if (['dev', 'headteacher', 'deputy', 'dos'].includes(r)) {
-                h += `<button onclick="uiConfig()" class="w-full text-left p-3 rounded-xl hover:bg-red-600 hover:text-white transition">⚙️ Control Panel</button>`;
-                h += `<button onclick="uiEnrollment()" class="w-full text-left p-3 rounded-xl hover:bg-blue-600 hover:text-white transition">👤 Manage Users</button>`;
+                h += `<button onclick="uiConfig()" class="w-full text-left p-3 rounded-xl hover:bg-red-600 text-white">⚙️ System Settings</button>`;
+                h += `<button onclick="uiEnroll()" class="w-full text-left p-3 rounded-xl hover:bg-blue-600 text-white">👤 Registration</button>`;
             }
             if (['dev', 'teacher'].includes(r)) {
-                h += `<button onclick="uiAcademics()" class="w-full text-left p-3 rounded-xl hover:bg-green-600 hover:text-white transition">📝 Mark Entry</button>`;
+                h += `<button onclick="uiAcademics()" class="w-full text-left p-3 rounded-xl hover:bg-green-600 text-white">📝 Academic Marks</button>`;
             }
             if (['dev', 'bursar'].includes(r)) {
-                h += `<button onclick="uiBursar()" class="w-full text-left p-3 rounded-xl hover:bg-amber-600 hover:text-white transition">💰 Fees Hub</button>`;
+                h += `<button onclick="uiBursar()" class="w-full text-left p-3 rounded-xl hover:bg-amber-600 text-white">💰 Fees Management</button>`;
             }
-            h += `<button onclick="uiReports()" class="w-full text-left p-3 rounded-xl hover:bg-purple-600 hover:text-white transition">📄 Report Hub</button>`;
+            h += `<button onclick="uiReports()" class="w-full text-left p-3 rounded-xl hover:bg-purple-600 text-white">📄 Report Cards</button>`;
             nav.innerHTML = h;
         }
 
-        // --- ⚙️ CONTROL PANEL (Year/Term/Assessment Toggle) ---
-        function uiConfig() {
-            document.getElementById('portal-title').innerText = "Academic Settings";
+        // --- 👤 REGISTRATION WITH CLASS/SUBJECT DROPDOWNS ---
+        function uiEnroll() {
+            document.getElementById('portal-title').innerText = "Member Registration";
+            const classOptions = CLASSES.map(c => `<option value="${c}">${c}</option>`).join('');
+            const subOptions = SUBJECTS.map(s => `<option value="${s}">${s}</option>`).join('');
+
             document.getElementById('portal-content').innerHTML = `
-                <div class="max-w-md space-y-6">
-                    <div><label class="block text-xs font-bold mb-2">ACADEMIC YEAR</label>
-                    <input type="number" id="set-year" value="${globalConfig.year}" class="w-full p-4 border rounded-2xl"></div>
-                    <div><label class="block text-xs font-bold mb-2">CURRENT TERM</label>
-                    <select id="set-term" class="w-full p-4 border rounded-2xl">
-                        <option ${globalConfig.term=='Term 1'?'selected':''}>Term 1</option>
-                        <option ${globalConfig.term=='Term 2'?'selected':''}>Term 2</option>
-                        <option ${globalConfig.term=='Term 3'?'selected':''}>Term 3</option>
-                    </select></div>
-                    <div><label class="block text-xs font-bold mb-2">REPORT ASSESSMENT MODE</label>
-                    <select id="set-mode" class="w-full p-4 border rounded-2xl">
-                        <option ${globalConfig.mode=='AoI'?'selected':''}>AoI (Activities of Integration)</option>
-                        <option ${globalConfig.mode=='End of Term'?'selected':''}>End of Term</option>
-                        <option ${globalConfig.mode=='End of Year'?'selected':''}>End of Year</option>
-                    </select></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="p-8 bg-white border rounded-[2.5rem] card-shadow">
+                        <h3 class="font-black text-blue-600 uppercase mb-4 italic">Register Learner</h3>
+                        <input id="l-lin" placeholder="LIN Number" class="w-full p-4 mb-3 border rounded-2xl">
+                        <input id="l-name" placeholder="Full Name" class="w-full p-4 mb-3 border rounded-2xl">
+                        <input id="l-dob" type="date" class="w-full p-4 mb-3 border rounded-2xl">
+                        <p class="text-[10px] font-bold ml-2">SELECT CLASS</p>
+                        <select id="l-class" class="w-full p-4 mb-4 border rounded-2xl">${classOptions}</select>
+                        <button onclick="saveUser('learner')" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-black">ENROLL LEARNER</button>
+                    </div>
+
+                    <div class="p-8 bg-white border rounded-[2.5rem] card-shadow">
+                        <h3 class="font-black text-purple-600 uppercase mb-4 italic">Register Staff</h3>
+                        <input id="s-id" placeholder="Staff ID" class="w-full p-4 mb-3 border rounded-2xl">
+                        <input id="s-name" placeholder="Full Name" class="w-full p-4 mb-3 border rounded-2xl">
+                        <p class="text-[10px] font-bold ml-2">SELECT ROLE</p>
+                        <select id="s-role" class="w-full p-4 mb-3 border rounded-2xl">
+                            <option>teacher</option><option>dos</option><option>deputy</option><option>headteacher</option><option>bursar</option>
+                        </select>
+                        <div id="staff-academics" class="space-y-3">
+                            <p class="text-[10px] font-bold ml-2">CLASS ASSIGNED</p>
+                            <select id="s-class" class="w-full p-4 border rounded-2xl">${classOptions}</select>
+                            <p class="text-[10px] font-bold ml-2">SUBJECT ASSIGNED</p>
+                            <select id="s-sub" class="w-full p-4 border rounded-2xl">${subOptions}</select>
+                        </div>
+                        <button onclick="saveUser('staff')" class="w-full bg-purple-600 text-white p-4 mt-4 rounded-2xl font-black">ENROLL STAFF</button>
+                    </div>
+                </div>
+                <div class="mt-12 p-8 border-2 border-dashed border-red-200 rounded-[2.5rem] bg-red-50">
+                    <h3 class="font-black text-red-600 uppercase mb-4">Permanent Removal</h3>
+                    <input id="del-id" placeholder="Enter ID/LIN to delete" class="p-4 border rounded-2xl w-full max-w-sm">
+                    <button onclick="removeUser()" class="bg-red-600 text-white p-4 rounded-2xl font-black ml-0 md:ml-4 mt-4 md:mt-0">REMOVE FROM SYSTEM</button>
+                </div>`;
+        }
+
+        async function saveUser(type) {
+            const id = type === 'learner' ? document.getElementById('l-lin').value.toLowerCase() : document.getElementById('s-id').value.toLowerCase();
+            const data = type === 'learner' ? {
+                name: document.getElementById('l-name').value, 
+                dob: document.getElementById('l-dob').value,
+                class: document.getElementById('l-class').value, 
+                role: 'learner', password: '1234', balance: 0
+            } : {
+                name: document.getElementById('s-name').value, 
+                role: document.getElementById('s-role').value,
+                class: document.getElementById('s-class').value, 
+                subject: document.getElementById('s-sub').value, 
+                password: '1234'
+            };
+            await db.collection("users").doc(id).set(data);
+            alert(`✅ Record Stored. Default PIN is 1234`);
+        }
+
+        // --- ⚙️ SETTINGS (YEAR/TERM/MODE) ---
+        function uiConfig() {
+            document.getElementById('portal-title').innerText = "Academic Controls";
+            document.getElementById('portal-content').innerHTML = `
+                <div class="max-w-md bg-white p-8 rounded-[2.5rem] border space-y-6">
+                    <div><label class="font-black text-[10px]">ACADEMIC YEAR (Calendar)</label>
+                    <input type="number" id="set-year" value="${config.year}" class="w-full p-4 border rounded-2xl"></div>
+                    <div><label class="font-black text-[10px]">CURRENT TERM</label>
+                    <select id="set-term" class="w-full p-4 border rounded-2xl"><option>Term 1</option><option>Term 2</option><option>Term 3</option></select></div>
+                    <div><label class="font-black text-[10px]">REPORT ASSESSMENT TYPE</label>
+                    <select id="set-mode" class="w-full p-4 border rounded-2xl"><option>AoI</option><option>End of Term</option><option>End of Year</option></select></div>
                     <button onclick="saveConfig()" class="w-full bg-red-600 text-white p-4 rounded-2xl font-black">UPDATE SYSTEM STATUS</button>
                 </div>`;
         }
@@ -168,118 +209,53 @@
         async function saveConfig() {
             const data = { year: document.getElementById('set-year').value, term: document.getElementById('set-term').value, mode: document.getElementById('set-mode').value };
             await db.collection("settings").doc("global").set(data);
-            alert("✅ System Configuration Updated!");
+            alert("System status updated permanently.");
             location.reload();
         }
 
-        // --- 👤 ENROLLMENT (Strict Management) ---
-        function uiEnrollment() {
-            document.getElementById('portal-title').innerText = "User Management";
+        // --- 📝 MARK ENTRY (TEACHER) ---
+        function uiAcademics() {
+            document.getElementById('portal-title').innerText = "Submit Marks";
+            const subOptions = SUBJECTS.map(s => `<option value="${s}">${s}</option>`).join('');
             document.getElementById('portal-content').innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="p-6 bg-slate-50 rounded-3xl border">
-                        <h3 class="font-black mb-4">ENROLL LEARNER</h3>
-                        <input id="l-id" placeholder="Official LIN" class="w-full p-3 mb-2 border rounded-xl">
-                        <input id="l-name" placeholder="Full Name" class="w-full p-3 mb-2 border rounded-xl">
-                        <input id="l-dob" type="date" class="w-full p-3 mb-2 border rounded-xl">
-                        <select id="l-class" class="w-full p-3 mb-4 border rounded-xl">${CLASSES.map(c=>`<option>${c}</option>`).join('')}</select>
-                        <button onclick="saveUser('learner')" class="w-full bg-blue-600 text-white p-3 rounded-xl font-bold">SAVE LEARNER</button>
+                <div class="max-w-md bg-white p-8 rounded-[2.5rem] border space-y-4">
+                    <input id="m-lin" placeholder="Student LIN" class="w-full p-4 border rounded-2xl">
+                    <select id="m-sub" class="w-full p-4 border rounded-2xl">${subOptions}</select>
+                    <div class="flex gap-2">
+                        <input id="m-aoi" type="number" step="0.1" placeholder="AoI (3.0)" class="w-1/2 p-4 border rounded-2xl">
+                        <input id="m-exam" type="number" placeholder="Exam (100)" class="w-1/2 p-4 border rounded-2xl">
                     </div>
-                    <div class="p-6 bg-slate-50 rounded-3xl border">
-                        <h3 class="font-black mb-4">ENROLL STAFF</h3>
-                        <input id="s-id" placeholder="Staff ID" class="w-full p-3 mb-2 border rounded-xl">
-                        <input id="s-name" placeholder="Full Name" class="w-full p-3 mb-2 border rounded-xl">
-                        <select id="s-role" class="w-full p-3 mb-2 border rounded-xl"><option>teacher</option><option>bursar</option><option>dos</option><option>headteacher</option></select>
-                        <select id="s-class" class="w-full p-3 mb-2 border rounded-xl">${CLASSES.map(c=>`<option>${c}</option>`).join('')}</select>
-                        <select id="s-sub" class="w-full p-3 mb-4 border rounded-xl">${SUBJECTS.map(s=>`<option>${s}</option>`).join('')}</select>
-                        <button onclick="saveUser('staff')" class="w-full bg-purple-600 text-white p-3 rounded-xl font-bold">SAVE STAFF</button>
-                    </div>
-                </div>
-                <div class="mt-8 border-t pt-8">
-                    <h3 class="font-black text-red-600 mb-4 uppercase">Danger Zone: Remove User</h3>
-                    <input id="del-id" placeholder="Enter ID/LIN to remove" class="p-3 border rounded-xl w-64">
-                    <button onclick="removeUser()" class="bg-red-100 text-red-600 p-3 rounded-xl font-bold ml-2">DELETE PERMANENTLY</button>
+                    <button onclick="saveMarks()" class="w-full bg-green-600 text-white p-4 rounded-2xl font-black uppercase tracking-widest">Post to Database</button>
                 </div>`;
         }
 
-        async function saveUser(type) {
-            const id = type === 'learner' ? document.getElementById('l-id').value.toLowerCase() : document.getElementById('s-id').value.toLowerCase();
-            const data = type === 'learner' ? {
-                name: document.getElementById('l-name').value, dob: document.getElementById('l-dob').value,
-                class: document.getElementById('l-class').value, role: 'learner', password: '1234', balance: 0
-            } : {
-                name: document.getElementById('s-name').value, role: document.getElementById('s-role').value,
-                class: document.getElementById('s-class').value, subject: document.getElementById('s-sub').value, 
-                password: '1234'
-            };
-            await db.collection("users").doc(id).set(data);
-            alert("✅ User Created with Default Password: 1234");
+        async function saveMarks() {
+            const lin = document.getElementById('m-lin').value.toLowerCase();
+            const aoi = parseFloat(document.getElementById('m-aoi').value);
+            const exam = parseFloat(document.getElementById('m-exam').value);
+            const sub = document.getElementById('m-sub').value;
+            const total = ((aoi/3)*20) + (exam*0.8);
+            await db.collection("marks").doc(`${lin}_${sub}_${config.year}`).set({
+                student: lin, subject: sub, aoi, exam, total: total.toFixed(1), teacher: me.name, year: config.year, term: config.term
+            });
+            alert("Marks stored successfully.");
         }
 
         async function removeUser() {
             const id = document.getElementById('del-id').value.toLowerCase();
-            if(confirm("Are you sure? This cannot be undone.")) {
+            if(confirm("Confirm permanent removal?")) {
                 await db.collection("users").doc(id).delete();
-                alert("🗑️ User removed.");
+                alert("User deleted.");
             }
         }
 
-        // --- 👤 PROFILE (Self Password Change) ---
-        function uiProfile() {
-            document.getElementById('portal-title').innerText = "My Profile";
-            document.getElementById('portal-content').innerHTML = `
-                <div class="max-w-md space-y-4">
-                    <p class="font-bold">Current ID: ${me.id}</p>
-                    <input id="new-pw" type="password" placeholder="New PIN" class="w-full p-4 border rounded-2xl">
-                    <button onclick="changePassword()" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-black">CHANGE PASSWORD</button>
-                </div>`;
-        }
-
-        async function changePassword() {
-            const npw = document.getElementById('new-pw').value;
-            await db.collection("users").doc(me.id).update({ password: npw });
-            alert("✅ Password changed successfully!");
-        }
-
-        // --- 📄 REPORTS (Dynamic Context) ---
-        async function uiReports() {
-            document.getElementById('portal-title').innerText = "Academic Reports";
-            document.getElementById('portal-content').innerHTML = `
-                <div class="text-center p-10"><input id="r-lin" placeholder="Student LIN" class="p-4 border rounded-2xl text-center mb-4"><br>
-                <button onclick="genReport()" class="bg-purple-600 text-white px-10 py-5 rounded-2xl font-black">PRINT ${globalConfig.mode.toUpperCase()} REPORT</button></div>`;
-        }
-
-        async function genReport() {
-            const lin = document.getElementById('r-lin').value.toLowerCase();
-            const uDoc = await db.collection("users").doc(lin).get();
-            if(!uDoc.exists) return alert("Student not found.");
-            const u = uDoc.data();
-            
-            const mSnap = await db.collection("marks").where("student", "==", lin).get();
-            let table = ""; let tot = 0; let cnt = 0;
-            mSnap.forEach(d => {
-                const m = d.data();
-                table += `<tr><td class="border border-black p-2 font-bold">${m.subject}</td><td class="border border-black p-2 text-center">${m.aoi}</td><td class="border border-black p-2 text-center">${m.exam}</td><td class="border border-black p-2 text-center font-bold">${m.total}%</td><td class="border border-black p-2 italic">${m.teacher}</td></tr>`;
-                tot += parseFloat(m.total); cnt++;
-            });
-
-            document.getElementById('r-type-display').innerText = `${globalConfig.term} ${globalConfig.mode} REPORT - ${globalConfig.year}`;
-            document.getElementById('report-header-info').innerHTML = `<div>Name: ${u.name}<br>LIN: ${lin.toUpperCase()}</div><div class="text-right">Class: ${u.class}<br>DOB: ${u.dob}</div>`;
-            document.getElementById('r-table-body').innerHTML = table;
-            document.getElementById('r-avg').innerText = (tot/cnt).toFixed(1) + "%";
-            
-            document.getElementById('report-qr').innerHTML = "";
-            new QRCode(document.getElementById("report-qr"), { text: `AWERE_${lin}_${globalConfig.year}`, width: 80, height: 80 });
-            setTimeout(() => window.print(), 500);
-        }
-
         function showDash() {
-            document.getElementById('portal-title').innerText = "Awere SS Home";
-            document.getElementById('portal-content').innerHTML = `<h2 class="text-4xl font-black italic">Welcome back, ${me.name}!</h2>
-            <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="p-8 bg-blue-50 border border-blue-100 rounded-[2rem]"><p class="text-[10px] font-black uppercase text-blue-600">Current Session</p><p class="text-2xl font-black">${globalConfig.year} ${globalConfig.term}</p></div>
-                <div class="p-8 bg-purple-50 border border-purple-100 rounded-[2rem]"><p class="text-[10px] font-black uppercase text-purple-600">Active Mode</p><p class="text-2xl font-black">${globalConfig.mode}</p></div>
-            </div>`;
+            document.getElementById('portal-title').innerText = "Home Dashboard";
+            document.getElementById('portal-content').innerHTML = `
+                <div class="p-12 bg-blue-600 rounded-[3rem] text-white shadow-xl">
+                    <h2 class="text-4xl font-black italic mb-2">Hello, ${me.name}!</h2>
+                    <p class="text-xs uppercase font-bold tracking-widest opacity-80">System Role: ${me.role}</p>
+                </div>`;
         }
     </script>
 </body>
